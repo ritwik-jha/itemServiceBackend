@@ -1,5 +1,6 @@
 package com.reselr.productManagement.service;
 
+import com.reselr.productManagement.entity.ImageData;
 import com.reselr.productManagement.entity.Item;
 import com.reselr.productManagement.entity.ResponseMessage;
 import com.reselr.productManagement.repository.ItemRepository;
@@ -14,10 +15,29 @@ public class ItemService {
     @Autowired
     private ItemRepository itemRepository;
 
+    private S3Service s3Service;
+
+    @Autowired
+    ItemService(S3Service s3Service) {
+        this.s3Service = s3Service;
+    }
+
     public ResponseMessage saveItem(Item item){
         ResponseMessage res = new ResponseMessage(1, "Failed", null);
         try{
+            //creating ImageData from item
+            ImageData imgData = new ImageData();
+            imgData.setImageUrl(item.getImageUrl());
+            imgData.setImageName("uploadedImage");
+            imgData.setItemId(item.getItemId());
 
+            //uploading to s3 and getting the url
+            String imgUrl = s3Service.uploadFileToS3(imgData);
+
+            //setting the url to the item imageUrl
+            item.setImageUrl(imgUrl);
+
+            //saving to database
             Item savedItem = itemRepository.save(item);
             res.setItem(savedItem);
             res.setCode(0);
