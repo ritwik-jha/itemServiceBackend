@@ -4,6 +4,7 @@ import com.reselr.productManagement.entity.ImageData;
 import com.reselr.productManagement.entity.Item;
 import com.reselr.productManagement.entity.ResponseMessage;
 import com.reselr.productManagement.repository.ItemRepository;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +29,8 @@ public class ItemService {
             //creating ImageData from item
             ImageData imgData = new ImageData();
             imgData.setImageUrl(item.getImageUrl());
-            imgData.setImageName("uploadedImage");
-            imgData.setItemId(item.getItemId());
+            imgData.setImageName(DateTime.now().toDateTimeISO().toString().replace(':', '-').replace('+', '-').replace('.', '-'));
+            imgData.setItemId(item.getUserId());
 
             //uploading to s3 and getting the url
             String imgUrl = s3Service.uploadFileToS3(imgData);
